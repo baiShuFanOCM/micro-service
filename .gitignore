@@ -1,0 +1,10 @@
+# Editor directories and files
+.idea
+# Package Files #
+*.jar
+*.war
+*.ear
+/target
+/.settings
+/.classpath
+/.project
