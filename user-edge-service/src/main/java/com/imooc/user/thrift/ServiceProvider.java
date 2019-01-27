@@ -1,6 +1,8 @@
 package com.imooc.user.thrift;
 
+import com.imooc.thrift.message.MessageService;
 import com.imooc.thrift.user.UserService;
+import org.apache.thrift.TServiceClient;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TFramedTransport;
@@ -19,9 +21,27 @@ public class ServiceProvider {
     private  String serverIp;
     @Value("${thrift.user.port}")
     private  int serverPort;
+    @Value("${thrift.message.ip}")
+    private String messageIp;
+    @Value("${thrift.message.port}")
+    private int messsagePort;
+
+    private enum  ServiceType {
+        USER,
+        MESSAGE
+    }
 
     public UserService.Client getUserService(){
-        TSocket socket =  new TSocket(serverIp,serverPort,3000);
+        return getService(serverIp,serverPort,ServiceType.USER);
+    }
+
+    public MessageService.Client getMessageService(){
+        return getService(serverIp,serverPort,ServiceType.MESSAGE);
+    }
+
+    public <T> T getService(String ip,int port,ServiceType serviceType){
+
+        TSocket socket =  new TSocket(ip,port,3000);
         TTransport transport =  new TFramedTransport(socket);
         try {
             transport.open();
@@ -29,12 +49,20 @@ public class ServiceProvider {
             e.printStackTrace();
             return null;
         }
+        TServiceClient client = null;
         TProtocol  protocol =  new TBinaryProtocol(transport);
-        UserService.Client client = new UserService.Client(protocol);
-        return  client;
+        switch (serviceType){
+            case USER:
+                client = new UserService.Client(protocol);
+                break;
+            case MESSAGE:
+                client =  new MessageService.Client(protocol);
+                break;
 
-
+        }
+        return (T)client;
 
     }
+
 
 }

@@ -30,6 +30,5 @@ public class UserServiceImpl implements UserService.Iface {
     @Override
     public void registerUser(UserInfo userInfo) throws TException {
         userMapper.registerUser(userInfo);
-
     }
 }
